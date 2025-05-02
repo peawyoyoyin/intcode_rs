@@ -24,7 +24,7 @@ fn parse_parameter_modes(raw_opcode: isize) -> (isize, Vec<ParameterMode>) {
 }
 
 pub fn fetch_and_decode(memory: &Vec<isize>, pc: usize) -> Instruction {
-    let logger = Logger::new("decode::fetch_and_decode");
+    let logger = Logger::new(format!("{}::fetch_and_decode", module_path!()));
     logger.debug(format!("Start fetch and decode at PC={pc}"));
 
     let raw_opcode = memory.get(pc).expect(&format!(

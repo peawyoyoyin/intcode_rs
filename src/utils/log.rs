@@ -1,34 +1,40 @@
 #[derive(PartialEq, PartialOrd, Clone, Copy)]
-pub enum LogLevel {
+enum LogLevel {
     Disabled = 0,
-    Info = 90,
     Debug = 100,
 }
 
 static mut LOG_LEVEL: LogLevel = LogLevel::Disabled;
 
-pub fn set_log_level(level: LogLevel) {
+fn set_log_level(level: LogLevel) {
     unsafe { LOG_LEVEL = level };
 }
 
-pub struct Logger {
-    namespace: &'static str,
+pub fn enable_debug() {
+    set_log_level(LogLevel::Debug);
 }
 
-impl Logger {
-    pub fn new(namespace: &'static str) -> Logger {
+pub fn disable() {
+    set_log_level(LogLevel::Disabled);
+}
+
+pub struct Logger {
+    namespace: String,
+}
+
+impl Logger  {
+    // TODO this should be a macro
+    pub fn new(namespace: String) -> Logger {
         Logger { namespace }
     }
 
-    pub fn debug(&self, msg: String) {
-        if (unsafe { LOG_LEVEL } >= LogLevel::Debug) {
+    fn print_log(&self, level: LogLevel, msg: String) {
+        if (unsafe { LOG_LEVEL } >= level) {
             println!("{}", format!("[{}][DEBUG] {msg}", self.namespace))
         }
     }
 
-    pub fn info(&self, msg: String) {
-        if (unsafe { LOG_LEVEL } >= LogLevel::Info) {
-            println!("{}", format!("[{}][DEBUG] {msg}", self.namespace))
-        }
+    pub fn debug(&self, msg: String) {
+        self.print_log(LogLevel::Debug, msg);
     }
 }

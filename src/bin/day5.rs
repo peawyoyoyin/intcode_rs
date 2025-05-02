@@ -4,6 +4,7 @@ use intcode_rs::{
 };
 
 fn main() {
+    // utils::log::enable_debug();
     let code = utils::load_code_from_file("inputs/day5.txt");
     // part 1
     {
