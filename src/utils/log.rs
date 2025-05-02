@@ -23,7 +23,6 @@ pub struct Logger {
 }
 
 impl Logger  {
-    // TODO this should be a macro
     pub fn new(namespace: String) -> Logger {
         Logger { namespace }
     }
@@ -37,4 +36,11 @@ impl Logger  {
     pub fn debug(&self, msg: String) {
         self.print_log(LogLevel::Debug, msg);
     }
+}
+
+#[macro_export]
+macro_rules! logger {
+    ( $( $x:literal ), + ) => {
+        Logger::new(module_path!().to_owned()+"][" $(+$x)+ )
+    };
 }
