@@ -1,3 +1,5 @@
+use crate::machine::Data;
+
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum ParameterMode {
   Position,
@@ -5,7 +7,7 @@ pub enum ParameterMode {
 }
 
 impl ParameterMode {
-  pub fn from_int(int: isize) -> ParameterMode {
+  pub fn from_int(int: Data) -> ParameterMode {
     match int {
       0 => Self::Position,
       1 => Self::Immediate,
@@ -16,12 +18,12 @@ impl ParameterMode {
 
 #[derive(Copy, Clone, Debug)]
 pub struct Parameter {
-  pub value: isize,
+  pub value: Data,
   pub mode: ParameterMode
 }
 
 impl Parameter {
-  pub fn from(pair: (&isize, ParameterMode)) -> Parameter {
+  pub fn from(pair: (&Data, ParameterMode)) -> Parameter {
     Parameter { value: *pair.0, mode: pair.1 }
   }
 }

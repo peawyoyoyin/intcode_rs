@@ -7,17 +7,20 @@ use instruction::parameter::{Parameter, ParameterMode};
 mod decode;
 mod instruction;
 
+pub type Data = isize;
+pub type Address = usize;
+
 pub struct IntCodeMachine {
-    memory: Vec<isize>,
-    pc: usize,
+    memory: Vec<Data>,
+    pc: Address,
     halted: bool,
     suspended: bool,
-    input: VecDeque<isize>,
-    output: Vec<isize>,
+    input: VecDeque<Data>,
+    output: Vec<Data>,
 }
 
 impl IntCodeMachine {
-    pub fn new(initial_memory: Vec<isize>) -> IntCodeMachine {
+    pub fn new(initial_memory: Vec<Data>) -> IntCodeMachine {
         IntCodeMachine {
             memory: initial_memory,
             pc: 0,
@@ -28,7 +31,7 @@ impl IntCodeMachine {
         }
     }
 
-    pub fn memory(&self, address: usize) -> Option<&isize> {
+    pub fn memory(&self, address: Address) -> Option<&Data> {
         self.memory.get(address)
     }
 
@@ -36,15 +39,15 @@ impl IntCodeMachine {
         self.halted
     }
 
-    pub fn output(&self) -> &Vec<isize> {
+    pub fn output(&self) -> &Vec<Data> {
         &self.output
     }
 
-    pub fn feed_input(&mut self, item: isize) {
+    pub fn feed_input(&mut self, item: Data) {
         self.input.push_back(item);
     }
 
-    fn resolve_parameter(&self, parameter: Parameter) -> isize {
+    fn resolve_parameter(&self, parameter: Parameter) -> Data {
         match parameter.mode {
             ParameterMode::Immediate => parameter.value,
             ParameterMode::Position => {
@@ -58,7 +61,7 @@ impl IntCodeMachine {
         }
     }
 
-    fn resolve_address(&self, parameter: Parameter) -> usize {
+    fn resolve_address(&self, parameter: Parameter) -> Address {
         assert!(
             parameter.mode != ParameterMode::Immediate,
             "unexpected immediate mode for address parameter {}",

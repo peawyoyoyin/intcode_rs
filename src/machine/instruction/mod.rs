@@ -3,15 +3,19 @@ use std::usize;
 use opcode::arity;
 use parameter::Parameter;
 
+use crate::machine::Data;
+
 pub mod parameter;
 pub mod opcode {
-    pub const ADD: isize = 1;
-    pub const MULT: isize = 2;
-    pub const INPUT: isize = 3;
-    pub const OUTPUT: isize = 4;
-    pub const HALT: isize = 99;
+    use crate::machine::Data;
 
-    pub fn arity(opcode: isize) -> usize {
+    pub const ADD: Data = 1;
+    pub const MULT: Data = 2;
+    pub const INPUT: Data = 3;
+    pub const OUTPUT: Data = 4;
+    pub const HALT: Data = 99;
+
+    pub fn arity(opcode: Data) -> usize {
         match opcode {
             ADD => 3,
             MULT => 3,
@@ -32,7 +36,7 @@ pub enum Instruction {
 }
 
 impl Instruction {
-    fn opcode(&self) -> isize {
+    fn opcode(&self) -> Data {
         match *self {
             Self::Add(..) => opcode::ADD,
             Self::Multiply(..) => opcode::MULT,

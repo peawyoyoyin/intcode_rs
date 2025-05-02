@@ -3,11 +3,13 @@ use crate::machine::instruction::opcode;
 use crate::machine::instruction::parameter::{Parameter, ParameterMode};
 use crate::utils::log::Logger;
 
+use crate::machine::{Data, Address};
+
 /**
  * returns (opcode, parameter modes)
  *
  */
-fn parse_parameter_modes(raw_opcode: isize) -> (isize, Vec<ParameterMode>) {
+fn parse_parameter_modes(raw_opcode: Data) -> (isize, Vec<ParameterMode>) {
     let parsed_opcode = raw_opcode % 100;
 
     let mut parameter_modes: Vec<ParameterMode> = Vec::new();
@@ -23,7 +25,7 @@ fn parse_parameter_modes(raw_opcode: isize) -> (isize, Vec<ParameterMode>) {
     (parsed_opcode, parameter_modes)
 }
 
-pub fn fetch_and_decode(memory: &Vec<isize>, pc: usize) -> Instruction {
+pub fn fetch_and_decode(memory: &Vec<Data>, pc: Address) -> Instruction {
     let logger = crate::logger!("fetch_and_decode");
     logger.debug(format!("Start fetch and decode at PC={pc}"));
 
