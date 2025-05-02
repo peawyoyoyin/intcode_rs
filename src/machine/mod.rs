@@ -115,16 +115,6 @@ impl IntCodeMachine {
             self.execute(&instruction);
         }
     }
-
-    pub fn run_till_halt(&mut self) {
-        while !self.halted {
-            if self.suspended {
-                panic!("unexpected suspend while running run_till_halt")
-            }
-            let instruction = fetch_and_decode(&self.memory, self.pc);
-            self.execute(&instruction);
-        }
-    }
 }
 
 #[cfg(test)]
@@ -134,7 +124,7 @@ mod tests {
     #[test]
     fn test_day2_simple_case1() {
         let mut machine = IntCodeMachine::new(vec![1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50]);
-        machine.run_till_halt();
+        machine.run();
         assert!(machine.halted());
         assert_eq!(machine.memory(0), Some(3500).as_ref());
     }

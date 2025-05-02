@@ -9,7 +9,8 @@ fn main() {
         part1code[2] = 2;
 
         let mut machine = machine::IntCodeMachine::new(part1code);
-        machine.run_till_halt();
+        machine.run();
+        assert!(machine.halted(), "machine did not halt after run");
         let result = machine.memory(0).expect("cannot find memory at address 0");
         println!("part 1 result {result}");
     }
@@ -24,7 +25,8 @@ fn main() {
                 new_code[1] = noun;
                 new_code[2] = verb;
                 let mut machine = machine::IntCodeMachine::new(new_code);
-                machine.run_till_halt();
+                machine.run();
+                assert!(machine.halted(), "machine did not halt after run, noun={noun}, verb={verb}");
                 let result = machine.memory(0).expect(&format!(
                     "cannot find memory at address 0 while running with noun={noun}, verb={verb}"
                 ));
