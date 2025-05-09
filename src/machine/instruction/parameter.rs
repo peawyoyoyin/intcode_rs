@@ -3,7 +3,8 @@ use crate::machine::Data;
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum ParameterMode {
   Position,
-  Immediate
+  Immediate,
+  Relative
 }
 
 impl ParameterMode {
@@ -11,6 +12,7 @@ impl ParameterMode {
     match int {
       0 => Self::Position,
       1 => Self::Immediate,
+      2 => Self::Relative,
       _ => panic!("unknown parameter mode {int}")
     }
   }

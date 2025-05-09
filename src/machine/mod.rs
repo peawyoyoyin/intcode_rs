@@ -15,6 +15,7 @@ pub struct IntCodeMachine {
     pc: Address,
     halted: bool,
     suspended: bool,
+    relative_base: Data,
     input: VecDeque<Data>,
     output: Vec<Data>,
 }
@@ -24,6 +25,7 @@ impl IntCodeMachine {
         IntCodeMachine {
             memory: initial_memory,
             pc: 0,
+            relative_base: 0,
             halted: false,
             suspended: false,
             input: VecDeque::new(),
@@ -57,6 +59,17 @@ impl IntCodeMachine {
                     parameter.value
                 );
                 self.memory[parameter.value.unsigned_abs()]
+            }
+            ParameterMode::Relative => {
+                let resolved_address = parameter.value + self.relative_base;
+                assert!(
+                    resolved_address >= 0,
+                    "relative mode parameter resolves to a negative address {}, parameter value= {}, relative base = {}",
+                    resolved_address,
+                    parameter.value,
+                    self.relative_base
+                );
+                self.memory[resolved_address.unsigned_abs()]
             }
         }
     }
@@ -128,6 +141,9 @@ impl IntCodeMachine {
                 } else {
                     0
                 }
+            }
+            Instruction::AdjustRelativeBase(a) => {
+                self.relative_base += self.resolve_parameter(a);
             }
             Instruction::Halt => {
                 self.halted = true;

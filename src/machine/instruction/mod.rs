@@ -17,6 +17,7 @@ pub mod opcode {
     pub const JUMP_IF_FALSE: Data = 6;
     pub const LESS_THAN: Data = 7;
     pub const EQUAL: Data = 8;
+    pub const ADJUST_RELATIVE_BASE: Data = 9;
     pub const HALT: Data = 99;
 
     pub fn arity(opcode: Data) -> usize {
@@ -29,6 +30,7 @@ pub mod opcode {
             JUMP_IF_FALSE => 2,
             LESS_THAN => 3,
             EQUAL => 3,
+            ADJUST_RELATIVE_BASE => 1,
             HALT => 0,
             _ => panic!("checking arity of unknown opcode {opcode}"),
         }
@@ -44,6 +46,7 @@ pub enum Instruction {
     JumpIfFalse(Parameter, Parameter),         
     LessThan(Parameter, Parameter, Parameter),
     Equal(Parameter, Parameter, Parameter),
+    AdjustRelativeBase(Parameter),
     Halt,
 }
 
@@ -58,6 +61,7 @@ impl Instruction {
             Self::JumpIfFalse(..) => opcode::JUMP_IF_FALSE,
             Self::LessThan(..) => opcode::LESS_THAN,
             Self::Equal(..) => opcode::EQUAL,
+            Self::AdjustRelativeBase(..) => opcode::ADJUST_RELATIVE_BASE,
             Self::Halt => opcode::HALT,
         }
     }
