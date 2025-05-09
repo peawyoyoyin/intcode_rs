@@ -101,6 +101,34 @@ impl IntCodeMachine {
             Instruction::Output(a) => {
                 self.output.push(self.resolve_parameter(a));
             }
+            Instruction::JumpIfTrue(a, b) => {
+                if self.resolve_parameter(a) != 0 {
+                    self.pc = self.resolve_parameter(b).unsigned_abs();
+                    should_advance_pc = false;
+                }
+            }
+            Instruction::JumpIfFalse(a, b) => {
+                if self.resolve_parameter(a) == 0 {
+                    self.pc = self.resolve_parameter(b).unsigned_abs();
+                    should_advance_pc = false;
+                }
+            }
+            Instruction::LessThan(a, b, c) => {
+                let address = self.resolve_address(c);
+                self.memory[address] = if self.resolve_parameter(a) < self.resolve_parameter(b) {
+                    1
+                } else {
+                    0
+                }
+            }
+            Instruction::Equal(a, b, c) => {
+                let address = self.resolve_address(c);
+                self.memory[address] = if self.resolve_parameter(a) == self.resolve_parameter(b) {
+                    1
+                } else {
+                    0
+                }
+            }
             Instruction::Halt => {
                 self.halted = true;
             }
@@ -140,5 +168,51 @@ mod tests {
         machine.run();
         assert!(machine.halted());
         assert_eq!(machine.output().get(0), Some(17).as_ref());
+    }
+
+    #[test]
+    fn test_day5_jump_case1() {
+        let mut machine = IntCodeMachine::new(vec![
+            3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9,
+        ]);
+        machine.run();
+        machine.feed_input(15);
+        machine.run();
+        assert!(machine.halted());
+        assert_eq!(machine.output().get(0), Some(1).as_ref());
+    }
+
+    #[test]
+    fn test_day5_jump_case2() {
+        let mut machine = IntCodeMachine::new(vec![
+            3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9,
+        ]);
+        machine.run();
+        machine.feed_input(0);
+        machine.run();
+        assert!(machine.halted());
+        assert_eq!(machine.output().get(0), Some(0).as_ref());
+    }
+
+    #[test]
+    fn test_day5_jump_case3() {
+        let mut machine =
+            IntCodeMachine::new(vec![3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]);
+        machine.run();
+        machine.feed_input(0);
+        machine.run();
+        assert!(machine.halted());
+        assert_eq!(machine.output().get(0), Some(0).as_ref());
+    }
+
+    #[test]
+    fn test_day5_jump_case4() {
+        let mut machine =
+            IntCodeMachine::new(vec![3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]);
+        machine.run();
+        machine.feed_input(9);
+        machine.run();
+        assert!(machine.halted());
+        assert_eq!(machine.output().get(0), Some(1).as_ref());
     }
 }

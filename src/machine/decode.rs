@@ -53,6 +53,10 @@ pub fn fetch_and_decode(memory: &Vec<Data>, pc: Address) -> Instruction {
         opcode::MULT => Instruction::Multiply(parameters[0], parameters[1], parameters[2]),
         opcode::INPUT => Instruction::Input(parameters[0]),
         opcode::OUTPUT => Instruction::Output(parameters[0]),
+        opcode::JUMP_IF_TRUE => Instruction::JumpIfTrue(parameters[0], parameters[1]),
+        opcode::JUMP_IF_FALSE => Instruction::JumpIfFalse(parameters[0], parameters[1]),
+        opcode::LESS_THAN => Instruction::LessThan(parameters[0], parameters[1], parameters[2]),
+        opcode::EQUAL => Instruction::Equal(parameters[0], parameters[1], parameters[2]),
         opcode::HALT => Instruction::Halt,
         _ => panic!("unknown opcode {raw_opcode} while decoding"),
     }

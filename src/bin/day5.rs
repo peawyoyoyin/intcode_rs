@@ -18,4 +18,16 @@ fn main() {
             .expect("output was empty");
         println!("part 1 result {result}");
     }
+
+    {
+        let part2code = code.clone();
+        let mut machine = machine::IntCodeMachine::new(part2code);
+        machine.feed_input(5);
+        machine.run();
+        let result = machine
+            .output()
+            .last()
+            .expect("output was empty");
+        println!("part 2 result {result}");
+    }
 }
