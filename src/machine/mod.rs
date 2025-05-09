@@ -3,15 +3,17 @@ use std::collections::VecDeque;
 use decode::fetch_and_decode;
 use instruction::Instruction;
 use instruction::parameter::{Parameter, ParameterMode};
+use memory::Memory;
 
 mod decode;
 mod instruction;
+mod memory;
 
 pub type Data = isize;
 pub type Address = usize;
 
 pub struct IntCodeMachine {
-    memory: Vec<Data>,
+    memory: Memory,
     pc: Address,
     halted: bool,
     suspended: bool,
@@ -23,7 +25,7 @@ pub struct IntCodeMachine {
 impl IntCodeMachine {
     pub fn new(initial_memory: Vec<Data>) -> IntCodeMachine {
         IntCodeMachine {
-            memory: initial_memory,
+            memory: Memory::new(initial_memory),
             pc: 0,
             relative_base: 0,
             halted: false,
@@ -34,7 +36,7 @@ impl IntCodeMachine {
     }
 
     pub fn memory(&self, address: Address) -> Option<&Data> {
-        self.memory.get(address)
+        Some(&self.memory[address])
     }
 
     pub fn halted(&self) -> bool {
@@ -64,7 +66,7 @@ impl IntCodeMachine {
                 let resolved_address = parameter.value + self.relative_base;
                 assert!(
                     resolved_address >= 0,
-                    "relative mode parameter resolves to a negative address {}, parameter value= {}, relative base = {}",
+                    "relative mode parameter resolves to a negative address {}, parameter value = {}, relative base = {}",
                     resolved_address,
                     parameter.value,
                     self.relative_base
@@ -80,12 +82,28 @@ impl IntCodeMachine {
             "unexpected immediate mode for address parameter {}",
             parameter.value
         );
-        assert!(
-            parameter.value >= 0,
-            "unexpected negative value {} for address parameter",
-            parameter.value
-        );
-        parameter.value.unsigned_abs()
+        match parameter.mode {
+            ParameterMode::Immediate => unreachable!(),
+            ParameterMode::Position => {
+                assert!(
+                    parameter.value >= 0,
+                    "unexpected negative value {} for address parameter",
+                    parameter.value
+                );        
+                parameter.value.unsigned_abs()
+            }
+            ParameterMode::Relative => {
+                let resolved_address = parameter.value + self.relative_base;
+                assert!(
+                    resolved_address >= 0,
+                    "relative mode parameter resolves to a negative address {}, parameter value = {}, relative base = {}",
+                    resolved_address,
+                    parameter.value,
+                    self.relative_base
+                );
+                resolved_address.unsigned_abs()
+            }
+        }
     }
 
     fn execute(&mut self, instruction: &Instruction) {
@@ -230,5 +248,36 @@ mod tests {
         machine.run();
         assert!(machine.halted());
         assert_eq!(machine.output().get(0), Some(1).as_ref());
+    }
+
+    #[test]
+    fn test_day9_case1() {
+        let mut machine = IntCodeMachine::new(vec![
+            109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99,
+        ]);
+        machine.run();
+        assert!(machine.halted());
+        assert_eq!(
+            *machine.output(),
+            vec![
+                109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99
+            ]
+        )
+    }
+
+    #[test]
+    fn test_day9_case2() {
+        let mut machine = IntCodeMachine::new(vec![1102, 34915192, 34915192, 7, 4, 7, 99, 0]);
+        machine.run();
+        assert!(machine.halted());
+        assert_eq!(machine.output().get(0), Some(1219070632396864).as_ref());
+    }
+
+    #[test]
+    fn test_day9_case3() {
+        let mut machine = IntCodeMachine::new(vec![104, 1125899906842624, 99]);
+        machine.run();
+        assert!(machine.halted());
+        assert_eq!(machine.output().get(0), Some(1125899906842624).as_ref());
     }
 }

@@ -5,6 +5,8 @@ use crate::utils::log::Logger;
 
 use crate::machine::{Data, Address};
 
+use super::memory::Memory;
+
 /**
  * returns (opcode, parameter modes)
  *
@@ -25,25 +27,19 @@ fn parse_parameter_modes(raw_opcode: Data) -> (isize, Vec<ParameterMode>) {
     (parsed_opcode, parameter_modes)
 }
 
-pub fn fetch_and_decode(memory: &Vec<Data>, pc: Address) -> Instruction {
+pub fn fetch_and_decode(memory: &Memory, pc: Address) -> Instruction {
     let logger = crate::logger!("fetch_and_decode");
     logger.debug(format!("Start fetch and decode at PC={pc}"));
 
-    let raw_opcode = memory.get(pc).expect(&format!(
-        "pc is at {} which is outside of available memory",
-        pc
-    ));
+    let raw_opcode = memory[pc];
+
     logger.debug(format!("raw opcode = {raw_opcode}"));
 
-    let (parsed_opcode, parameter_modes) = parse_parameter_modes(*raw_opcode);
+    let (parsed_opcode, parameter_modes) = parse_parameter_modes(raw_opcode);
     let arity = opcode::arity(parsed_opcode);
-    let parameters_values = memory.get((pc + 1)..(pc + arity + 1)).expect(&format!(
-        "error while reading parameters (pc is at {}, arity {arity})",
-        pc
-    ));
 
-    let parameters: Vec<Parameter> = parameters_values
-        .iter()
+    let parameters: Vec<Parameter> = ((pc+1)..(pc+arity+1))
+        .map(|address| &memory[address])
         .zip(parameter_modes)
         .map(|pair| Parameter::from(pair))
         .collect();
