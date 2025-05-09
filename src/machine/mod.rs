@@ -118,17 +118,19 @@ impl IntCodeMachine {
                 let address = self.resolve_address(c);
                 self.memory[address] = self.resolve_parameter(a) * self.resolve_parameter(b);
             }
-            Instruction::Input(a) => match self.input.front() {
-                Some(item) => {
-                    let address = self.resolve_address(a);
-                    self.memory[address] = *item;
-                    self.input.pop_front();
+            Instruction::Input(a) => {
+                match self.input.front() {
+                    Some(item) => {
+                        let address = self.resolve_address(a);
+                        self.memory[address] = *item;
+                        self.input.pop_front();
+                    }
+                    None => {
+                        should_advance_pc = false;
+                        self.suspended = true;
+                    }
                 }
-                None => {
-                    should_advance_pc = false;
-                    self.suspended = true;
-                }
-            },
+            }
             Instruction::Output(a) => {
                 self.output.push(self.resolve_parameter(a));
             }
